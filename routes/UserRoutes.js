@@ -36,6 +36,10 @@ const getPublicIP = async () => {
 router.post('/register', async (req, res) => {
   try {
     const { username, password, code } = req.body
+    const userlast = await User.findOne({ username })
+    if (userlast) {
+      return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại' })
+    }
     const usercode = await User.findOne({ code: code })
     if (!usercode) {
       return res.status(400).json({ message: 'Mã mời không tồn tại' })
