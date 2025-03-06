@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const ImageCapCha = require('../models/ImageCapchaModel')
+const uploads = require('./upload')
+
 
 router.post(
   '/postimagecapcha',
@@ -37,7 +39,7 @@ router.get('/getimagecapcha', async (req, res) => {
 
     const randomImage =
       selectedImages[Math.floor(Math.random() * selectedImages.length)]
-    selectedImages.push(randomImage) 
+    selectedImages.push(randomImage)
 
     selectedImages = selectedImages.sort(() => Math.random() - 0.5)
 
@@ -47,6 +49,5 @@ router.get('/getimagecapcha', async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
-
 
 module.exports = router
