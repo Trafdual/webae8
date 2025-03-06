@@ -7,6 +7,8 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const MongoStore = require('connect-mongo')
 const passport = require('passport')
+const imagecapcha = require('./routes/ImageCapChaRoutes')
+const userRoutes = require('./routes/UserRoutes')
 
 var path = require('path')
 
@@ -52,6 +54,8 @@ app.use(cors())
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use('/', imagecapcha)
+app.use('/', userRoutes)
 app.listen(8080, () => {
   try {
     console.log('kết nối thành công 8080')
