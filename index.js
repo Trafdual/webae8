@@ -9,6 +9,8 @@ const MongoStore = require('connect-mongo')
 const passport = require('passport')
 const imagecapcha = require('./routes/ImageCapChaRoutes')
 const userRoutes = require('./routes/UserRoutes')
+const trandauRoutes = require('./routes/TranDauRoutes')
+const coinlogRoutes = require('./routes/CoinLogRoutes')
 
 var path = require('path')
 
@@ -56,6 +58,8 @@ app.use(passport.session())
 
 app.use('/', imagecapcha)
 app.use('/', userRoutes)
+app.use('/', trandauRoutes)
+app.use('/', coinlogRoutes)
 app.listen(8080, () => {
   try {
     console.log('kết nối thành công 8080')
