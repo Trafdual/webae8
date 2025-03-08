@@ -60,10 +60,10 @@ app.use('/', imagecapcha)
 app.use('/', userRoutes)
 app.use('/', trandauRoutes)
 app.use('/', coinlogRoutes)
-app.listen(8080, () => {
+app.listen(3040, () => {
   try {
-    console.log('kết nối thành công 8080')
+    console.log('kết nối thành công 3040')
   } catch (error) {
-    console.log('kết nối thất bại 8080', error)
+    console.log('kết nối thất bại 3040', error)
   }
 })
