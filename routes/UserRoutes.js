@@ -5,6 +5,8 @@ const crypto = require('crypto')
 const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
+const { removeVietnameseAccents } = require('./XoaDauTiengViet')
+const { createUser, deposit } = require('./CapNhatUserLaunchGame')
 
 const generateUniqueCode = async () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -72,7 +74,7 @@ router.post('/register', async (req, res) => {
       }
       user.lv1.push(usercode.id)
     }
-    
+
     await user.save()
     res.json(user)
   } catch (error) {
@@ -166,6 +168,69 @@ router.post('/import-json', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ error: 'Lỗi server', details: error.message })
+  }
+})
+
+router.post('/launch_game', async (req, res) => {
+  try {
+    const { portfolio, productId, device, gameProviderId, gameId, userData } =
+      req.body
+    if (!userData) return res.json({link:'http://localhost:3000/login'})
+
+    let username = removeVietnameseAccents(userData.username)
+    const user = await User.findOne({ username: userData.username })
+    if (!user) {
+      return res.status(400).json({ message: 'Tài khoản không tồn tại' })
+    }
+
+    const companyKey = 'C6012BA39EB643FEA4F5CD49AF138B02'
+
+    await createUser(username)
+    await deposit(username, user.id, user.coins)
+
+    const response = await axios.post(
+      'https://ex-api-yy5.tw946.com/web-root/restricted/player/login.aspx',
+      {
+        Username: username,
+        Portfolio: portfolio,
+        IsWapSports: false,
+        CompanyKey: companyKey,
+        ServerId: 'YY-production'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    const data = response.data
+    let urlRes = 'https:' + data.url
+    let urldevice = urlRes
+
+    if (portfolio === 'Casino') {
+      urldevice += `&device=${device}&productId=${productId}&locale=vi-VN`
+    } else if (portfolio === 'SportsBook') {
+      urldevice += `&device=${device}&lang=vi-VN`
+    } else if (portfolio === 'ThirdPartySportsBook') {
+      urldevice += `&gpid=${gameProviderId}&gameid=${gameId}&device=${device}&lang=vi-VN`
+    } else if (portfolio === 'SeamlessGame') {
+      if (gameProviderId == 7) {
+        urldevice += `&gpid=${gameProviderId}&gameid=${gameId}&device=${device}&lang=vi-VN&betCode=7VND5500_7VND252500_7VND505000_7VND20010000_7VND100050000`
+      } else {
+        urldevice += `&gpid=${gameProviderId}&gameid=${gameId}&device=${device}&lang=vi-VN`
+      }
+    } else if (portfolio === 'Games') {
+      urldevice += `&gameid=${gameId}&device=${device}&lang=vi-VN`
+    }
+
+    return res.json({
+      status: 200,
+      url: urldevice
+    })
+  } catch (error) {
+    console.error('Lỗi khi khởi chạy game:', error.message)
+    return res.status(500).json({ message: 'Có lỗi xảy ra' })
   }
 })
 

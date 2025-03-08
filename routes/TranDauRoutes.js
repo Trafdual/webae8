@@ -47,5 +47,32 @@ router.post('/import-matches', async (req, res) => {
   }
 })
 
+router.get('/getmatches', async (req, res) => {
+  try {
+    const { date } = req.query
+
+    if (!date) {
+      return res
+        .status(400)
+        .json({ message: 'Vui lòng cung cấp ngày (YYYY-MM-DD)' })
+    }
+
+    const startOfDay = Math.floor(
+      new Date(`${date}T00:00:00Z`).getTime() / 1000
+    )
+    const endOfDay = Math.floor(new Date(`${date}T23:59:59Z`).getTime() / 1000)
+
+    const matches = await TranDau.find({
+      started: { $gte: startOfDay, $lte: endOfDay }
+    })
+    console.log(startOfDay, endOfDay)
+
+    res.json(matches)
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error })
+  }
+})
+
+
 
 module.exports = router
